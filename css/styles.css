@@ -4,7 +4,18 @@
    elija uno: entonces app.js pone data-tema="claro|oscuro" en <html>.
    ===================================================================== */
 
+/* Inter variable, auto-alojada (subset latin) para que la app se vea igual
+   sin conexion. font-display:swap muestra la fuente del sistema mientras carga. */
+@font-face {
+  font-family: "Inter var";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("../fonts/inter-var-latin.woff2") format("woff2");
+}
+
 :root {
+  --fuente: "Inter var", "Segoe UI", system-ui, -apple-system, sans-serif;
   /* --- superficies --- */
   --fondo:        #f6f7f9;
   --fondo-alto:   #eceef2;
@@ -39,13 +50,16 @@
   --r-lg: 14px;
   --r-xl: 20px;
 
-  --sombra-sm: 0 1px 2px rgba(16, 24, 40, .05);
-  --sombra:    0 1px 3px rgba(16, 24, 40, .08), 0 1px 2px rgba(16, 24, 40, .04);
-  --sombra-md: 0 4px 8px -2px rgba(16, 24, 40, .08), 0 2px 4px -2px rgba(16, 24, 40, .04);
-  --sombra-xl: 0 24px 48px -12px rgba(16, 24, 40, .25);
+  /* Sombras por capas, muy suaves: dan profundidad sin ensuciar. */
+  --sombra-sm: 0 1px 2px rgba(16, 24, 40, .04);
+  --sombra:    0 1px 2px rgba(16, 24, 40, .04), 0 1px 3px rgba(16, 24, 40, .06);
+  --sombra-md: 0 2px 4px -1px rgba(16, 24, 40, .05), 0 8px 16px -4px rgba(16, 24, 40, .08);
+  --sombra-lg: 0 4px 8px -2px rgba(16, 24, 40, .06), 0 16px 32px -8px rgba(16, 24, 40, .12);
+  --sombra-xl: 0 24px 56px -12px rgba(16, 24, 40, .28);
 
-  --anillo: 0 0 0 4px rgba(79, 70, 229, .16);
-  --transicion: 140ms cubic-bezier(.4, 0, .2, 1);
+  --anillo: 0 0 0 3.5px rgba(79, 70, 229, .16);
+  --transicion: 150ms cubic-bezier(.4, 0, .2, 1);
+  --transicion-lenta: 260ms cubic-bezier(.16, 1, .3, 1);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -126,13 +140,16 @@ html { color-scheme: light; }
 
 body {
   margin: 0;
-  font-family: "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system,
-               "Inter", sans-serif;
+  font-family: var(--fuente);
   font-size: 14px;
   line-height: 1.5;
+  letter-spacing: -.006em;
   color: var(--texto);
   background: var(--fondo);
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: "cv05" 1, "ss03" 1, "calt" 1;
+  text-rendering: optimizeLegibility;
 }
 
 ::selection { background: var(--acento); color: var(--sobre-acento); }
@@ -243,11 +260,11 @@ body {
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding: 11px 20px;
-  background: color-mix(in srgb, var(--superficie) 82%, transparent);
+  padding: 12px 22px;
+  background: color-mix(in srgb, var(--superficie) 78%, transparent);
   border-bottom: 1px solid var(--borde);
-  backdrop-filter: blur(12px) saturate(140%);
-  -webkit-backdrop-filter: blur(12px) saturate(140%);
+  backdrop-filter: blur(16px) saturate(150%);
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
 }
 
 .topbar-marca { display: flex; align-items: center; gap: 11px; min-width: 0; }
@@ -308,49 +325,57 @@ body {
 
 .tarjetas {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
-  gap: 12px;
-  margin-bottom: 18px;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 14px;
+  margin-bottom: 22px;
 }
 
 .tarjeta {
   position: relative;
   overflow: hidden;
-  padding: 15px 17px;
+  padding: 18px 20px;
   border: 1px solid var(--borde);
   border-radius: var(--r-lg);
   background: var(--superficie);
   box-shadow: var(--sombra-sm);
-  transition: box-shadow var(--transicion), transform var(--transicion);
+  transition: box-shadow var(--transicion), transform var(--transicion),
+              border-color var(--transicion);
 }
 
-.tarjeta:hover { box-shadow: var(--sombra-md); transform: translateY(-1px); }
-
-/* Filo de color superior, distinto por tarjeta. */
-.tarjeta::before {
-  content: "";
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 2px;
-  background: var(--filo, var(--acento));
-  opacity: .85;
+.tarjeta:hover {
+  box-shadow: var(--sombra-md);
+  transform: translateY(-2px);
+  border-color: var(--borde-fuerte);
 }
 
-.tarjeta-valor {
-  font-size: 23px;
-  font-weight: 680;
-  letter-spacing: -.025em;
-  font-variant-numeric: tabular-nums;
-  line-height: 1.2;
-}
-
+/* Etiqueta con un punto de color en vez del filo superior: mas limpio. */
 .tarjeta-etiqueta {
-  margin-top: 3px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 8px;
   font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: .05em;
   color: var(--texto-suave);
+}
+
+.tarjeta-etiqueta::before {
+  content: "";
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--filo, var(--acento));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--filo, var(--acento)) 16%, transparent);
+  flex: none;
+}
+
+.tarjeta-valor {
+  font-size: 27px;
+  font-weight: 700;
+  letter-spacing: -.03em;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
 }
 
 /* --------------------------------- barra -------------------------------- */
@@ -387,13 +412,14 @@ body {
 
 input, select, textarea {
   width: 100%;
-  padding: 8px 11px;
+  padding: 9px 12px;
   border: 1px solid var(--borde-fuerte);
-  border-radius: var(--r-sm);
+  border-radius: var(--r-md);
   font: inherit;
   color: var(--texto);
   background: var(--superficie);
-  transition: border-color var(--transicion), box-shadow var(--transicion);
+  transition: border-color var(--transicion), box-shadow var(--transicion),
+              background var(--transicion);
 }
 
 input::placeholder, textarea::placeholder { color: var(--texto-suave); }
@@ -434,9 +460,9 @@ select {
   align-items: center;
   justify-content: center;
   gap: 7px;
-  padding: 8px 14px;
+  padding: 9px 15px;
   border: 1px solid var(--borde-fuerte);
-  border-radius: var(--r-sm);
+  border-radius: var(--r-md);
   font: inherit;
   font-weight: 600;
   color: var(--texto);
@@ -449,20 +475,24 @@ select {
 }
 
 .btn svg { width: 15px; height: 15px; flex: none; }
-.btn:hover { background: var(--superficie-2); border-color: var(--texto-suave); }
-.btn:active { transform: translateY(1px); }
+.btn:hover { background: var(--superficie-2); border-color: var(--texto-suave); transform: translateY(-1px); }
+.btn:active { transform: translateY(0); }
 .btn:focus-visible { outline: none; box-shadow: var(--anillo); }
 .btn:disabled { opacity: .55; cursor: default; transform: none; }
 
 .btn-primary {
-  background: var(--acento);
-  border-color: var(--acento);
+  background: linear-gradient(180deg,
+    color-mix(in srgb, var(--acento) 92%, white) 0%, var(--acento) 100%);
+  border-color: var(--acento-alto);
   color: var(--sobre-acento);
-  box-shadow: 0 1px 2px rgba(16, 24, 40, .1),
-              0 4px 12px -4px color-mix(in srgb, var(--acento) 60%, transparent);
+  box-shadow: 0 1px 2px rgba(16, 24, 40, .12),
+              0 5px 14px -4px color-mix(in srgb, var(--acento) 60%, transparent);
 }
 
-.btn-primary:hover { background: var(--acento-alto); border-color: var(--acento-alto); }
+.btn-primary:hover {
+  background: linear-gradient(180deg, var(--acento) 0%, var(--acento-alto) 100%);
+  border-color: var(--acento-alto);
+}
 .btn-sutil { background: transparent; box-shadow: none; }
 .btn-sutil:hover { background: var(--fondo-alto); }
 .btn-block { width: 100%; }
@@ -525,7 +555,7 @@ tr:hover .btn-mini, .btn-mini:focus-visible { opacity: 1; }
 .tabla { width: 100%; border-collapse: separate; border-spacing: 0; }
 
 .tabla th, .tabla td {
-  padding: 10px 14px;
+  padding: 13px 14px;
   text-align: left;
   border-bottom: 1px solid var(--borde);
   vertical-align: middle;
@@ -597,6 +627,30 @@ tr:hover .btn-mini, .btn-mini:focus-visible { opacity: 1; }
   cursor: help;
   text-decoration: underline dotted;
   text-underline-offset: 3px;
+}
+
+/* ------------------------- skeleton de carga ---------------------------- */
+
+.fila-skeleton td { cursor: default; }
+.fila-skeleton:hover { background: transparent; }
+
+.sk {
+  display: block;
+  height: 12px;
+  border-radius: 6px;
+  background: linear-gradient(90deg,
+    var(--fondo-alto) 25%,
+    color-mix(in srgb, var(--fondo-alto) 55%, var(--superficie)) 37%,
+    var(--fondo-alto) 63%);
+  background-size: 400% 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+.sk-chip { height: 20px; width: 92px; border-radius: 999px; }
+
+@keyframes shimmer {
+  from { background-position: 100% 0; }
+  to   { background-position: 0 0; }
 }
 
 /* --------------------------------- chips -------------------------------- */

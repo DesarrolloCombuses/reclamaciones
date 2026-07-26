@@ -11,7 +11,7 @@
    a medio llenar.
    ===================================================================== */
 
-const VERSION = "1.0.0";
+const VERSION = "1.1.0";
 const CACHE = `reclamaciones-v${VERSION}`;
 
 // Shell de la app (mismo origen). Se precachea entero: si algo falla,
@@ -24,6 +24,7 @@ const SHELL = [
   "./js/app.js",
   "./js/pwa.js",
   "./manifest.webmanifest",
+  "./fonts/inter-var-latin.woff2",
   "./icons/favicon.svg",
   "./icons/icon-192.png",
   "./icons/icon-512.png",

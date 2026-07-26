@@ -191,6 +191,7 @@ async function mostrarApp(sesion) {
 async function cargar() {
   const aviso = $("avisoTabla");
   aviso.hidden = true;
+  pintarSkeleton();
 
   const { data, error } = await db
     .from(TABLA_RECLAMACIONES)
@@ -270,6 +271,29 @@ function celdaSiniestro(r) {
     td.appendChild(edad);
   }
   return td;
+}
+
+// Filas fantasma con brillo mientras llegan los datos. 10 columnas.
+function pintarSkeleton(filas = 8) {
+  const tbody = $("cuerpoTabla");
+  tbody.replaceChildren();
+  $("sinResultados").hidden = true;
+  const anchos = ["70%", "55%", "85%", "60%", "60%", "80%", "70%", "60%", "60%", "40%"];
+  for (let i = 0; i < filas; i++) {
+    const tr = document.createElement("tr");
+    tr.className = "fila-skeleton";
+    for (let c = 0; c < 10; c++) {
+      const td = document.createElement("td");
+      const sk = document.createElement("span");
+      sk.className = c === 0 ? "sk sk-chip" : "sk";
+      if (c !== 0) sk.style.width = anchos[c];
+      // desfase para que el brillo no vaya sincronizado en todas las filas
+      sk.style.animationDelay = `${(i * 10 + c * 4) % 100 / 100}s`;
+      td.appendChild(sk);
+      tr.appendChild(td);
+    }
+    tbody.appendChild(tr);
+  }
 }
 
 function pintar() {
