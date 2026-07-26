@@ -1,0 +1,17 @@
+# ---------------------------------------------------------------------
+# Datos reales (privacidad): nombres, correos y teléfonos de terceros.
+# Viven únicamente en Supabase; el repositorio no los necesita.
+# ---------------------------------------------------------------------
+datos/
+sql/02_datos.sql
+
+# Documentación interna (arquitectura y notas sensibles): no se publica.
+README.interno.md
+
+# Temporales y de trabajo
+_*.html
+*.log
+*.tmp
+.vscode/
+.DS_Store
+Thumbs.db
