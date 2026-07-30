@@ -273,20 +273,21 @@ function celdaSiniestro(r) {
   return td;
 }
 
-// Filas fantasma con brillo mientras llegan los datos. 10 columnas.
+// Filas fantasma con brillo mientras llegan los datos. 11 columnas
+// (radicado, estado-chip, y 9 mas).
 function pintarSkeleton(filas = 8) {
   const tbody = $("cuerpoTabla");
   tbody.replaceChildren();
   $("sinResultados").hidden = true;
-  const anchos = ["70%", "55%", "85%", "60%", "60%", "80%", "70%", "60%", "60%", "40%"];
+  const anchos = ["45%", null, "70%", "85%", "60%", "60%", "80%", "70%", "60%", "60%", "40%"];
   for (let i = 0; i < filas; i++) {
     const tr = document.createElement("tr");
     tr.className = "fila-skeleton";
-    for (let c = 0; c < 10; c++) {
+    for (let c = 0; c < 11; c++) {
       const td = document.createElement("td");
       const sk = document.createElement("span");
-      sk.className = c === 0 ? "sk sk-chip" : "sk";
-      if (c !== 0) sk.style.width = anchos[c];
+      sk.className = c === 1 ? "sk sk-chip" : "sk";   // col 1 = chip de estado
+      if (c !== 1) sk.style.width = anchos[c];
       // desfase para que el brillo no vaya sincronizado en todas las filas
       sk.style.animationDelay = `${(i * 10 + c * 4) % 100 / 100}s`;
       td.appendChild(sk);
@@ -311,6 +312,8 @@ function pintar() {
     tr.addEventListener("keydown", (e) => {
       if (e.key === "Enter") abrirDetalle(r);
     });
+
+    tr.appendChild(celda(r.radicado, "radicado-col"));
 
     const tdEstado = document.createElement("td");
     const chip = document.createElement("span");
@@ -415,6 +418,7 @@ function abrirDetalle(r) {
 
   $("detEstado").className = `chip chip-${slugEstado(r.estado)}`;
   $("detEstado").textContent = r.estado;
+  $("detEstadoSelect").value = r.estado;
   $("detReclamante").textContent = r.reclamante || "Sin reclamante registrado";
 
   const dias = diasDesde(r.fecha_siniestro);
@@ -491,6 +495,32 @@ function cambiarPestana(panelId) {
   document.querySelectorAll(".pestana").forEach((p) =>
     p.classList.toggle("activa", p.dataset.panel === panelId));
   document.querySelectorAll(".panel").forEach((p) => { p.hidden = p.id !== panelId; });
+}
+
+// Cambio de estado directo desde el detalle. Guarda al instante; la
+// auditoria de la base registra el cambio sola.
+async function cambiarEstadoRapido() {
+  const nuevo = $("detEstadoSelect").value;
+  if (!detalleActual || nuevo === detalleActual.estado) return;
+
+  const sel = $("detEstadoSelect");
+  sel.disabled = true;
+  const { error } = await db.from(TABLA_RECLAMACIONES)
+    .update({ estado: nuevo }).eq("id", detalleActual.id);
+  sel.disabled = false;
+
+  if (error) {
+    toast(mensajeError(error), "error");
+    sel.value = detalleActual.estado;                 // revertir
+    return;
+  }
+
+  detalleActual.estado = nuevo;
+  $("detEstado").className = `chip chip-${slugEstado(nuevo)}`;
+  $("detEstado").textContent = nuevo;
+  toast("Estado actualizado");
+  await cargar();                    // refresca tabla y tarjetas de fondo
+  cargarHistorial(detalleActual.id); // el cambio ya quedo en el historial
 }
 
 async function cargarBitacora(id) {
@@ -807,13 +837,11 @@ function alternarTema() {
 
 function poblarEstados() {
   for (const e of ESTADOS) {
-    const o1 = document.createElement("option");
-    o1.value = o1.textContent = e;
-    $("filtroEstado").appendChild(o1);
-
-    const o2 = document.createElement("option");
-    o2.value = o2.textContent = e;
-    $("f_estado").appendChild(o2);
+    for (const destino of ["filtroEstado", "f_estado", "detEstadoSelect"]) {
+      const o = document.createElement("option");
+      o.value = o.textContent = e;
+      $(destino).appendChild(o);
+    }
   }
 }
 
@@ -837,6 +865,7 @@ function init() {
   $("btnCerrarDetalle").addEventListener("click", () => $("modalDetalle").close());
   $("btnCerrarDetalle2").addEventListener("click", () => $("modalDetalle").close());
   $("btnEditarDesdeDetalle").addEventListener("click", () => abrirModal(detalleActual));
+  $("detEstadoSelect").addEventListener("change", cambiarEstadoRapido);
   $("btnArchivar").addEventListener("click", pedirArchivar);
   $("btnRestaurar").addEventListener("click", restaurar);
   $("formSeguimiento").addEventListener("submit", agregarSeguimiento);

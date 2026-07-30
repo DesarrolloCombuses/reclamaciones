@@ -152,6 +152,7 @@
       <table class="tabla">
         <thead>
           <tr>
+            <th data-orden="radicado">Radicado</th>
             <th data-orden="estado">Estado</th>
             <th data-orden="fecha_siniestro">Siniestro</th>
             <th data-orden="reclamante">Reclamante</th>
@@ -213,6 +214,11 @@
   <div class="modal-body detalle-body">
 
     <section id="panelDatos" class="panel">
+      <div class="estado-rapido">
+        <label for="detEstadoSelect">Estado del caso</label>
+        <select id="detEstadoSelect"></select>
+        <span class="estado-rapido-nota">se guarda al elegir</span>
+      </div>
       <div class="dinero-resumen" id="detDinero"></div>
       <dl class="datos" id="detDatos"></dl>
     </section>
@@ -299,8 +305,8 @@
             <select id="f_estado" required></select>
           </label>
           <label class="campo">
-            <span>Radicado</span>
-            <input type="text" id="f_radicado" maxlength="40">
+            <span>Radicado <small class="campo-nota-inline">se asigna solo</small></span>
+            <input type="text" id="f_radicado" readonly placeholder="(se asignará al guardar)">
           </label>
           <label class="campo">
             <span>Fecha de radicado</span>

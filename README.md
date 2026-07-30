@@ -22,6 +22,7 @@ reclamaciones/
   icons/                  iconos de la app
   sql/01_schema.sql       tabla, RLS, triggers, índices
   sql/03_seguimiento.sql  archivar, saldo, bitácora, auditoría
+  sql/04_radicado.sql     radicado automático (consecutivo con ceros)
   servir.bat              levanta un servidor local
 ```
 

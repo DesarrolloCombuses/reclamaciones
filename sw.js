@@ -11,7 +11,7 @@
    a medio llenar.
    ===================================================================== */
 
-const VERSION = "1.1.0";
+const VERSION = "1.2.0";
 const CACHE = `reclamaciones-v${VERSION}`;
 
 // Shell de la app (mismo origen). Se precachea entero: si algo falla,
